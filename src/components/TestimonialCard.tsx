@@ -4,7 +4,6 @@ import { StarRating } from "./StarRating";
 interface TestimonialCardProps {
   name: string;
   avatar: string;
-  location: string;
   rating: number;
   text: string;
   date: string;
@@ -13,11 +12,16 @@ interface TestimonialCardProps {
 export function TestimonialCard({
   name,
   avatar,
-  location,
   rating,
   text,
   date,
 }: TestimonialCardProps) {
+  // Formatar data
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-BR");
+  };
+
   return (
     <div className="rounded-lg border bg-background p-6 shadow-sm">
       <div className="flex items-center gap-4">
@@ -30,13 +34,12 @@ export function TestimonialCard({
         />
         <div>
           <h4 className="font-semibold">{name}</h4>
-          <p className="text-sm text-muted-foreground">{location}</p>
         </div>
       </div>
       <div className="mt-4">
         <StarRating rating={rating} size="sm" />
         <p className="mt-2 text-sm">{text}</p>
-        <p className="mt-2 text-xs text-muted-foreground">{date}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{formatDate(date)}</p>
       </div>
     </div>
   );

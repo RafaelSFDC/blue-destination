@@ -1,29 +1,15 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Category } from "@/schemas/categories";
 
-interface CategoryCardProps {
-  id: string;
-  name: string;
-  image: string;
-  count: number;
-}
-
-export function CategoryCard({ id, name, image, count }: CategoryCardProps) {
+export function CategoryCard({ category }: { category: Category }) {
   return (
-    <Link href={`/categoria/${id}`}>
+    <Link href={`/categoria/${category.$id}`}>
       <div className="group relative overflow-hidden rounded-lg">
         <div className="aspect-square w-full overflow-hidden">
-          <Image
-            src={image || "/placeholder.svg"}
-            alt={name}
-            width={300}
-            height={300}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+          {/* <Icon className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" /> */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-0 left-0 p-4 text-white">
-            <h3 className="text-lg font-bold">{name}</h3>
-            <p className="text-sm">{count} destinos</p>
+            <h3 className="text-lg font-bold">{category.name}</h3>
           </div>
         </div>
       </div>

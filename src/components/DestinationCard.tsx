@@ -1,97 +1,56 @@
 "use client";
 
-import type React from "react";
-
 import Link from "next/link";
 import Image from "next/image";
-import { Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "./StarRating";
+import type { Destination } from "@/schemas/destinations";
 
 interface DestinationCardProps {
-  id: string;
-  name: string;
-  location: string;
-  image: string;
-  price: number;
-  rating: number;
-  discount?: number;
-  tags?: string[];
-  isFavorite?: boolean;
-  onFavoriteToggle?: (id: string) => void;
+  destination: Destination;
 }
 
-export function DestinationCard({
-  id,
-  name,
-  location,
-  image,
-  price,
-  rating,
-  discount,
-  tags,
-  isFavorite = false,
-  onFavoriteToggle,
-}: DestinationCardProps) {
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onFavoriteToggle) {
-      onFavoriteToggle(id);
-    }
-  };
-
+export function DestinationCard({ destination }: DestinationCardProps) {
   const formattedPrice = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(price);
+  }).format(destination.price);
 
-  const discountedPrice = discount
+  const discountedPrice = destination.discount
     ? new Intl.NumberFormat("pt-BR", {
         style: "currency",
         currency: "BRL",
-      }).format(price * (1 - discount / 100))
+      }).format(destination.price * (1 - destination.discount / 100))
     : null;
 
   return (
-    <Link href={`/destino/${id}`}>
+    <Link href={`/destino/${destination.$id}`}>
       <div className="group relative overflow-hidden rounded-lg border bg-background transition-all hover:shadow-md">
         <div className="aspect-video w-full overflow-hidden">
           <Image
-            src={image || "/placeholder.svg"}
-            alt={name}
+            src={destination.mainImage || "/placeholder.svg"}
+            alt={destination.name}
             width={500}
             height={300}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-2 bg-background/80 hover:bg-background/90"
-            onClick={handleFavoriteClick}
-            aria-label={
-              isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"
-            }
-          >
-            <Heart
-              className={`h-5 w-5 ${isFavorite ? "fill-red-500 text-red-500" : ""}`}
-            />
-          </Button>
-          {discount && (
+          {destination.discount && (
             <Badge className="absolute left-2 top-2 bg-red-500 hover:bg-red-600">
-              {discount}% OFF
+              {destination.discount}% OFF
             </Badge>
           )}
         </div>
         <div className="p-4">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="font-semibold">{name}</h3>
-              <p className="text-sm text-muted-foreground">{location}</p>
+              <h3 className="font-semibold">{destination.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                {destination.city ? `${destination.city}, ` : ""}
+                {destination.country}
+              </p>
             </div>
             <div className="text-right">
-              {discount ? (
+              {destination.discount ? (
                 <>
                   <p className="text-sm line-through text-muted-foreground">
                     {formattedPrice}
@@ -105,12 +64,12 @@ export function DestinationCard({
             </div>
           </div>
           <div className="mt-2 flex items-center justify-between">
-            <StarRating rating={rating} />
-            {tags && tags.length > 0 && (
+            <StarRating rating={destination.rating} />
+            {destination.categories && destination.categories.length > 0 && (
               <div className="flex flex-wrap gap-1">
-                {tags.slice(0, 2).map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
+                {destination.categories.slice(0, 2).map((tag) => (
+                  <Badge key={tag.name} variant="outline" className="text-xs">
+                    {tag.name}
                   </Badge>
                 ))}
               </div>
