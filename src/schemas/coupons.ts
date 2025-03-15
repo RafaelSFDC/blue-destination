@@ -15,4 +15,12 @@ export const couponSchema = z.object({
   maxDiscount: z.number().optional(),
 });
 
+export const updateCouponSchema = couponSchema.partial();
+
 export type Coupon = z.infer<typeof couponSchema>;
+
+export const couponFilterSchema = z.object({
+  code: z.string().optional(),
+  discountType: z.enum(["percentage", "fixed"]).optional(),
+  active: z.boolean().optional(),
+});

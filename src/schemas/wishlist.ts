@@ -8,7 +8,7 @@ export const wishlistSchema = z.object({
     .string()
     .datetime("Data inválida")
     .default(() => new Date().toISOString()),
-  item_type: z.enum(["destination", "package"]),
+  itemType: z.enum(["destination", "package"]),
   status: z.enum(["active", "removed"]).default("active"),
   notes: z.string().optional(),
 });
