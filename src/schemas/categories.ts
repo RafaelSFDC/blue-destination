@@ -2,6 +2,7 @@ import { z } from "zod";
 import { destinationSchema } from "./destinations";
 
 export const categorySchema = z.object({
+  $id: z.string().optional(),
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
   description: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres"),
   icon: z.string(),

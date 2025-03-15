@@ -14,3 +14,12 @@ export const reviewSchema = z.object({
 });
 
 export type Review = z.infer<typeof reviewSchema>;
+
+export const updateReviewSchema = reviewSchema.partial();
+
+export const reviewFilterSchema = z.object({
+  destinationId: z.string().optional(),
+  userId: z.string().optional(),
+  minRating: z.number().optional(),
+  maxRating: z.number().optional(),
+});

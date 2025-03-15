@@ -68,14 +68,8 @@ export default function Home() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {popularDestinations.map((destination) => (
               <DestinationCard
-                key={destination.id}
-                id={destination.id}
-                name={destination.name}
-                location={destination.location}
-                image={destination.image}
-                price={destination.price}
-                rating={destination.rating}
-                tags={destination.tags}
+                key={destination.$id}
+                destination={destination}
               />
             ))}
           </div>
@@ -102,17 +96,7 @@ export default function Home() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {promotions.map((promotion) => (
-              <DestinationCard
-                key={promotion.id}
-                id={promotion.id}
-                name={promotion.name}
-                location={promotion.location}
-                image={promotion.image}
-                price={promotion.price}
-                rating={promotion.rating}
-                discount={promotion.discount}
-                tags={promotion.tags}
-              />
+              <DestinationCard key={promotion.$id} destination={promotion} />
             ))}
           </div>
         </div>
@@ -132,11 +116,8 @@ export default function Home() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {categories.map((category) => (
               <CategoryCard
-                key={category.id}
-                id={category.id}
-                name={category.name}
-                image={category.image}
-                count={category.count}
+                key={category.$id + category.name}
+                category={category}
               />
             ))}
           </div>
@@ -158,11 +139,10 @@ export default function Home() {
             {testimonials.map((testimonial, index) => (
               <TestimonialCard
                 key={index}
-                name={testimonial.name}
-                avatar={testimonial.avatar}
-                location={testimonial.location}
+                name={testimonial.userName}
+                avatar={testimonial.userAvatar}
                 rating={testimonial.rating}
-                text={testimonial.text}
+                text={testimonial.comment}
                 date={testimonial.date}
               />
             ))}
@@ -190,16 +170,7 @@ export default function Home() {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {blogPosts.map((post) => (
-              <BlogCard
-                key={post.id}
-                id={post.id}
-                title={post.title}
-                excerpt={post.excerpt}
-                image={post.image}
-                date={post.date}
-                readTime={post.readTime}
-                author={post.author}
-              />
+              <BlogCard key={post.$id} post={post} />
             ))}
           </div>
         </div>
