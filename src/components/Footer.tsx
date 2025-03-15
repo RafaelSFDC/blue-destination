@@ -24,7 +24,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function Footer() {
+export default function Footer() {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormValues>({
