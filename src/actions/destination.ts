@@ -1,29 +1,26 @@
+"use server";
+import { createSessionClient, createAdminClient } from "@/lib/appwrite/config";
+import { ID, Query } from "node-appwrite";
 import {
-  COLLECTIONS,
-  createSessionClient,
-  createAdminClient,
-  DATABASE_ID,
-} from "@/lib/appwrite/config";
-import { ID } from "node-appwrite";
+  destinationSchema,
+  type Destination,
+  updateDestinationSchema,
+  destinationFilterSchema,
+} from "@/schemas/destinations";
+import { COLLECTIONS, DATABASE_ID } from "@/lib/appwrite/enviroments";
+import { z } from "zod";
 
 // CREATE - Criar novo destino
-export async function createDestination(destinationData: {
-  name: string;
-  description: string;
-  mainImage: string;
-  country: string;
-  city?: string;
-  region: string;
-  rating: number;
-  category: string[];
-}) {
+export async function createDestination(destinationData: Destination) {
+  const validatedData = destinationSchema.parse(destinationData);
+
   const { databases } = await createAdminClient();
   try {
     return await databases.createDocument(
       DATABASE_ID,
       COLLECTIONS.destinations,
       ID.unique(),
-      destinationData
+      validatedData
     );
   } catch (error) {
     console.error("Erro ao criar destino:", error);
@@ -31,15 +28,51 @@ export async function createDestination(destinationData: {
   }
 }
 
-// READ - Listar todos os destinos com queries opcionais
-export async function getDestinations(queries: any[] = []) {
+// READ - Listar todos os destinos com filtros opcionais
+export async function getDestinations(
+  filters?: z.infer<typeof destinationFilterSchema>
+) {
   const { databases } = await createSessionClient();
   try {
-    return await databases.listDocuments(
+    const queries = [];
+
+    if (filters) {
+      const validatedFilters = destinationFilterSchema.parse(filters);
+
+      if (validatedFilters.region) {
+        queries.push(Query.equal("region", validatedFilters.region));
+      }
+      if (validatedFilters.country) {
+        queries.push(Query.equal("country", validatedFilters.country));
+      }
+      if (
+        validatedFilters.categories &&
+        validatedFilters.categories.length > 0
+      ) {
+        // Cria um filtro OR para buscar destinos que contenham qualquer uma das categorias
+        queries.push(
+          Query.search("categories", validatedFilters.categories.join(","))
+        );
+      }
+      if (validatedFilters.minRating) {
+        queries.push(
+          Query.greaterThanEqual("rating", validatedFilters.minRating)
+        );
+      }
+      if (validatedFilters.excludeId) {
+        queries.push(Query.notEqual("$id", validatedFilters.excludeId));
+      }
+      if (validatedFilters.limit) {
+        queries.push(Query.limit(validatedFilters.limit));
+      }
+    }
+
+    const destinations = await databases.listDocuments(
       DATABASE_ID,
       COLLECTIONS.destinations,
       queries
     );
+    return destinations as unknown as { documents: Destination[] };
   } catch (error) {
     console.error("Erro ao buscar destinos:", error);
     throw error;
@@ -50,11 +83,12 @@ export async function getDestinations(queries: any[] = []) {
 export async function getDestination(id: string) {
   const { databases } = await createSessionClient();
   try {
-    return await databases.getDocument(
+    const destination = await databases.getDocument(
       DATABASE_ID,
       COLLECTIONS.destinations,
       id
     );
+    return destination as unknown as Destination;
   } catch (error) {
     console.error("Erro ao buscar destino:", error);
     throw error;
@@ -64,24 +98,17 @@ export async function getDestination(id: string) {
 // UPDATE - Atualizar um destino
 export async function updateDestination(
   id: string,
-  destinationData: Partial<{
-    name: string;
-    description: string;
-    mainImage: string;
-    country: string;
-    city?: string;
-    region: string;
-    rating: number;
-    category: string[];
-  }>
+  destinationData: z.infer<typeof updateDestinationSchema>
 ) {
+  const validatedData = updateDestinationSchema.parse(destinationData);
+
   const { databases } = await createAdminClient();
   try {
     return await databases.updateDocument(
       DATABASE_ID,
       COLLECTIONS.destinations,
       id,
-      destinationData
+      validatedData
     );
   } catch (error) {
     console.error("Erro ao atualizar destino:", error);
@@ -105,24 +132,23 @@ export async function deleteDestination(id: string) {
 
 // Buscar destinos por categoria
 export async function getDestinationsByCategory(category: string) {
-  const queries = [
-    // Query.equal("category", [category])
-  ];
-  return getDestinations(queries);
+  return getDestinations({
+    categories: [
+      {
+        name: category,
+        description: "",
+        icon: "",
+      },
+    ],
+  });
 }
 
 // Buscar destinos por região
 export async function getDestinationsByRegion(region: string) {
-  const queries = [
-    // Query.equal("region", region)
-  ];
-  return getDestinations(queries);
+  return getDestinations({ region });
 }
 
 // Buscar destinos por avaliação mínima
 export async function getDestinationsByMinRating(rating: number) {
-  const queries = [
-    // Query.greaterThanEqual("rating", rating)
-  ];
-  return getDestinations(queries);
+  return getDestinations({ minRating: rating });
 }
