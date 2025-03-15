@@ -344,3 +344,11 @@ export const blogPosts = [
     },
   },
 ];
+
+export const user = {
+  $id: "user123",
+  name: "John Doe",
+  email: "john.doe@example.com",
+  wishlist: ["destination1", "destination2"],
+  reservations: ["reservation1", "reservation2"],
+};
